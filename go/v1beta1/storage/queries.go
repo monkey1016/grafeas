@@ -68,7 +68,8 @@ const (
 	listNoteOccurrences = `SELECT o.id, o.data FROM occurrences as o, notes as n
 	                         WHERE n.id = o.note_id
 	                           AND n.project_name = $1
-	                           AND n.note_name = $2
+														 AND n.note_name = $2
+														 %s
 	                           AND o.id > $3
 	                           LIMIT $4`
 

@@ -263,7 +263,10 @@ func (pg *PgSQLStore) UpdateOccurrence(ctx context.Context, pID, oID string, o *
 	// TODO(#312): implement the update operation
 	o.UpdateTime = ptypes.TimestampNow()
 
-	result, err := pg.DB.Exec(updateOccurrence, proto.MarshalTextString(o), pID, oID)
+	m := jsonpb.Marshaler{}
+	dataAsJSON, _ := m.MarshalToString(o)
+
+	result, err := pg.DB.Exec(updateOccurrence, dataAsJSON, pID, oID)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "Failed to update Occurrence")
 	}
@@ -288,7 +291,9 @@ func (pg *PgSQLStore) GetOccurrence(ctx context.Context, pID, oID string) (*pb.O
 		return nil, status.Error(codes.Internal, "Failed to query Occurrence from database")
 	}
 	var o pb.Occurrence
-	proto.UnmarshalText(data, &o)
+	unm := jsonpb.Unmarshaler{}
+	reader := strings.NewReader(data)
+	unm.Unmarshal(reader, &o)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "Failed to unmarshal Occurrence from database")
 	}
@@ -417,7 +422,10 @@ func (pg *PgSQLStore) UpdateNote(ctx context.Context, pID, nID string, n *pb.Not
 	// TODO(#312): implement the update operation
 	n.UpdateTime = ptypes.TimestampNow()
 
-	result, err := pg.DB.Exec(updateNote, proto.MarshalTextString(n), pID, nID)
+	m := jsonpb.Marshaler{}
+	dataAsJSON, _ := m.MarshalToString(n)
+
+	result, err := pg.DB.Exec(updateNote, dataAsJSON, pID, nID)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "Failed to update Note")
 	}
@@ -442,7 +450,9 @@ func (pg *PgSQLStore) GetNote(ctx context.Context, pID, nID string) (*pb.Note, e
 		return nil, status.Error(codes.Internal, "Failed to query Note from database")
 	}
 	var note pb.Note
-	proto.UnmarshalText(data, &note)
+	unm := jsonpb.Unmarshaler{}
+	reader := strings.NewReader(data)
+	unm.Unmarshal(reader, &note)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "Failed to unmarshal Note from database")
 	}
@@ -522,6 +532,7 @@ func (pg *PgSQLStore) ListNotes(ctx context.Context, pID, filter, pageToken stri
 
 // ListNoteOccurrences returns up to pageSize number of occcurrences on the particular note (nID)
 // for this project (pID) projects beginning at pageToken (or from start if pageToken is the empty string).
+// Filter only filters on the occurrence
 func (pg *PgSQLStore) ListNoteOccurrences(ctx context.Context, pID, nID, filter, pageToken string, pageSize int32) ([]*pb.Occurrence, string, error) {
 	// Verify that note exists
 	if _, err := pg.GetNote(ctx, pID, nID); err != nil {
@@ -529,7 +540,16 @@ func (pg *PgSQLStore) ListNoteOccurrences(ctx context.Context, pID, nID, filter,
 	}
 	var rows *sql.Rows
 	id := decryptInt64(pageToken, pg.paginationKey, 0)
-	rows, err := pg.DB.Query(listNoteOccurrences, pID, nID, id, pageSize)
+	var filter_query, query string
+	if filter != "" {
+		var fs PgSQLFilterSql
+		filter_query = "AND " + fs.ParseFilter(filter)
+	} else {
+		filter_query = ""
+	}
+	strings.Replace(filter_query, "data", "o.data", -1)
+	query = fmt.Sprintf(listNoteOccurrences, filter_query)
+	rows, err := pg.DB.Query(query, pID, nID, id, pageSize)
 	if err != nil {
 		return nil, "", status.Error(codes.Internal, "Failed to list Occurrences from database")
 	}
@@ -546,7 +566,9 @@ func (pg *PgSQLStore) ListNoteOccurrences(ctx context.Context, pID, nID, filter,
 			return nil, "", status.Error(codes.Internal, "Failed to scan Occurrences row")
 		}
 		var o pb.Occurrence
-		proto.UnmarshalText(data, &o)
+		unm := jsonpb.Unmarshaler{}
+		reader := strings.NewReader(data)
+		unm.Unmarshal(reader, &o)
 		if err != nil {
 			return nil, "", status.Error(codes.Internal, "Failed to unmarshal Occurrence from database")
 		}

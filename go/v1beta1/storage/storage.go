@@ -25,7 +25,7 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/grafeas/grafeas/go/name"
-	"github.com/grafeas/grafeas/go/v1beta1/api"
+	grafeas "github.com/grafeas/grafeas/go/v1beta1/api"
 	"github.com/grafeas/grafeas/go/v1beta1/project"
 	cpb "github.com/grafeas/grafeas/proto/v1beta1/common_go_proto"
 	pb "github.com/grafeas/grafeas/proto/v1beta1/grafeas_go_proto"
@@ -544,7 +544,7 @@ func DoTestStorage(t *testing.T, createStore func(t *testing.T) (grafeas.Storage
 			wantProjectNames = append(wantProjectNames, p.Name)
 		}
 
-		filter := "filters_are_yet_to_be_implemented"
+		filter := ""
 		gotProjects, pageToken, err := gp.ListProjects(ctx, filter, 100, "")
 		if err != nil {
 			t.Fatalf("ListProjects got %v want success", err)
@@ -585,7 +585,7 @@ func DoTestStorage(t *testing.T, createStore func(t *testing.T) (grafeas.Storage
 			wantProjectNames[i] = p.Name
 		}
 
-		filter := "filters_are_yet_to_be_implemented"
+		filter := ""
 		gotProjectNames := make([]string, 0)
 		pageToken := ""
 		pageSize := 10
@@ -652,7 +652,7 @@ func DoTestStorage(t *testing.T, createStore func(t *testing.T) (grafeas.Storage
 			ns = append(ns, n)
 		}
 
-		filter := "filters_are_yet_to_be_implemented"
+		filter := ""
 		gotNs, _, err := g.ListNotes(ctx, findProject, filter, "", 100)
 		if err != nil {
 			t.Fatalf("ListNotes got %v want success", err)
@@ -709,7 +709,7 @@ func DoTestStorage(t *testing.T, createStore func(t *testing.T) (grafeas.Storage
 			os = append(os, oo)
 		}
 
-		filter := "filters_are_yet_to_be_implemented"
+		filter := ""
 		gotOs, _, err := g.ListOccurrences(ctx, findProject, filter, "", 100)
 		if err != nil {
 			t.Fatalf("ListOccurrences got %v want success", err)
@@ -766,7 +766,7 @@ func DoTestStorage(t *testing.T, createStore func(t *testing.T) (grafeas.Storage
 		if err != nil {
 			t.Fatalf("Error parsing note name %v", err)
 		}
-		filter := "filters_are_yet_to_be_implemented"
+		filter := ""
 		gotOs, _, err := g.ListNoteOccurrences(ctx, pID, nID, filter, "", 100)
 		if err != nil {
 			t.Fatalf("ListNoteOccurrences got %v want success", err)
@@ -809,7 +809,7 @@ func DoTestStorage(t *testing.T, createStore func(t *testing.T) (grafeas.Storage
 		if _, err := gp.CreateProject(ctx, p3ID, p3); err != nil {
 			t.Errorf("CreateProject got %v want success", err)
 		}
-		filter := "filters_are_yet_to_be_implemented"
+		filter := ""
 		// Get projects
 		gotProjects, lastPage, err := gp.ListProjects(ctx, filter, 2, "")
 		if err != nil {
@@ -870,7 +870,7 @@ func DoTestStorage(t *testing.T, createStore func(t *testing.T) (grafeas.Storage
 		if _, err := g.CreateNote(ctx, pID, nID3, "userID", op3); err != nil {
 			t.Errorf("CreateNote got %v want success", err)
 		}
-		filter := "filters_are_yet_to_be_implemented"
+		filter := ""
 		// Get occurrences
 		gotNotes, lastPage, err := g.ListNotes(ctx, pID, filter, "", 2)
 		if err != nil {
@@ -930,7 +930,7 @@ func DoTestStorage(t *testing.T, createStore func(t *testing.T) (grafeas.Storage
 		if _, err := g.CreateOccurrence(ctx, pID, "userID", op3); err != nil {
 			t.Errorf("CreateOccurrence got %v want success", err)
 		}
-		filter := "filters_are_yet_to_be_implemented"
+		filter := ""
 		// Get occurrences
 		gotOccurrences, lastPage, err := g.ListOccurrences(ctx, pID, filter, "", 2)
 		if err != nil {
@@ -985,7 +985,7 @@ func DoTestStorage(t *testing.T, createStore func(t *testing.T) (grafeas.Storage
 		if _, err := g.CreateOccurrence(ctx, pID, "userID", op3); err != nil {
 			t.Errorf("CreateOccurrence got %v want success", err)
 		}
-		filter := "filters_are_yet_to_be_implemented"
+		filter := ""
 		_, nID, err := name.ParseNote(n.Name)
 		// Get occurrences
 		gotOccurrences, lastPage, err := g.ListNoteOccurrences(ctx, nPID, nID, filter, "", 2)
