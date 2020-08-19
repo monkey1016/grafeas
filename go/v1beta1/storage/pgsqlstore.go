@@ -20,9 +20,11 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/fernet/fernet-go"
+	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/google/uuid"
@@ -188,7 +190,7 @@ func (pg *PgSQLStore) CreateOccurrence(ctx context.Context, pID, uID string, o *
 	o = proto.Clone(o).(*pb.Occurrence)
 	o.CreateTime = ptypes.TimestampNow()
 
-	var id string
+	var id, dataAsJSON string
 	if nr, err := uuid.NewRandom(); err != nil {
 		return nil, status.Error(codes.Internal, "Failed to generate UUID")
 	} else {
@@ -201,7 +203,9 @@ func (pg *PgSQLStore) CreateOccurrence(ctx context.Context, pID, uID string, o *
 		log.Printf("Invalid note name: %v", o.NoteName)
 		return nil, status.Error(codes.InvalidArgument, "Invalid note name")
 	}
-	_, err = pg.DB.Exec(insertOccurrence, pID, id, nPID, nID, proto.MarshalTextString(o))
+	m := jsonpb.Marshaler{}
+	dataAsJSON, _ = m.MarshalToString(o)
+	_, err = pg.DB.Exec(insertOccurrence, pID, id, nPID, nID, dataAsJSON)
 	if err, ok := err.(*pq.Error); ok {
 		// Check for unique_violation
 		if err.Code == "23505" {
@@ -298,7 +302,15 @@ func (pg *PgSQLStore) GetOccurrence(ctx context.Context, pID, oID string) (*pb.O
 func (pg *PgSQLStore) ListOccurrences(ctx context.Context, pID, filter, pageToken string, pageSize int32) ([]*pb.Occurrence, string, error) {
 	var rows *sql.Rows
 	id := decryptInt64(pageToken, pg.paginationKey, 0)
-	rows, err := pg.DB.Query(listOccurrences, pID, id, pageSize)
+	var filter_query, query string
+	if filter != "" {
+		var fs PgSQLFilterSql
+		filter_query = "AND " + fs.ParseFilter(filter)
+	} else {
+		filter_query = ""
+	}
+	query = fmt.Sprintf(listOccurrences, filter_query)
+	rows, err := pg.DB.Query(query, pID, id, pageSize)
 	if err != nil {
 		return nil, "", status.Error(codes.Internal, "Failed to list Occurrences from database")
 	}
@@ -307,24 +319,27 @@ func (pg *PgSQLStore) ListOccurrences(ctx context.Context, pID, filter, pageToke
 		return nil, "", status.Error(codes.Internal, "Failed to count Occurrences from database")
 	}
 	var os []*pb.Occurrence
-	var lastId int64
+	var lastID int64
 	for rows.Next() {
 		var data string
-		err := rows.Scan(&lastId, &data)
+		err := rows.Scan(&lastID, &data)
 		if err != nil {
 			return nil, "", status.Error(codes.Internal, "Failed to scan Occurrences row")
 		}
 		var o pb.Occurrence
-		proto.UnmarshalText(data, &o)
+		unm := jsonpb.Unmarshaler{}
+		reader := strings.NewReader(data)
+		unm.Unmarshal(reader, &o)
+		// proto.UnmarshalText(data, &o)
 		if err != nil {
 			return nil, "", status.Error(codes.Internal, "Failed to unmarshal Occurrence from database")
 		}
 		os = append(os, &o)
 	}
-	if count == lastId {
+	if count == lastID {
 		return os, "", nil
 	}
-	encryptedPage, err := encryptInt64(lastId, pg.paginationKey)
+	encryptedPage, err := encryptInt64(lastID, pg.paginationKey)
 	if err != nil {
 		return nil, "", status.Error(codes.Internal, "Failed to paginate projects")
 	}
@@ -338,7 +353,10 @@ func (pg *PgSQLStore) CreateNote(ctx context.Context, pID, nID, uID string, n *p
 	n.Name = nName
 	n.CreateTime = ptypes.TimestampNow()
 
-	_, err := pg.DB.Exec(insertNote, pID, nID, proto.MarshalTextString(n))
+	var dataAsJSON string
+	m := jsonpb.Marshaler{}
+	dataAsJSON, _ = m.MarshalToString(n)
+	_, err := pg.DB.Exec(insertNote, pID, nID, dataAsJSON)
 	if err, ok := err.(*pq.Error); ok {
 		// Check for unique_violation
 		if err.Code == "23505" {
@@ -458,7 +476,15 @@ func (pg *PgSQLStore) GetOccurrenceNote(ctx context.Context, pID, oID string) (*
 func (pg *PgSQLStore) ListNotes(ctx context.Context, pID, filter, pageToken string, pageSize int32) ([]*pb.Note, string, error) {
 	var rows *sql.Rows
 	id := decryptInt64(pageToken, pg.paginationKey, 0)
-	rows, err := pg.DB.Query(listNotes, pID, id, pageSize)
+	var filter_query, query string
+	if filter != "" {
+		var fs PgSQLFilterSql
+		filter_query = "AND " + fs.ParseFilter(filter)
+	} else {
+		filter_query = ""
+	}
+	query = fmt.Sprintf(listNotes, filter_query)
+	rows, err := pg.DB.Query(query, pID, id, pageSize)
 	if err != nil {
 		return nil, "", status.Error(codes.Internal, "Failed to list Notes from database")
 	}
@@ -467,24 +493,27 @@ func (pg *PgSQLStore) ListNotes(ctx context.Context, pID, filter, pageToken stri
 		return nil, "", status.Error(codes.Internal, "Failed to count Notes from database")
 	}
 	var ns []*pb.Note
-	var lastId int64
+	var lastID int64
 	for rows.Next() {
 		var data string
-		err := rows.Scan(&lastId, &data)
+		err := rows.Scan(&lastID, &data)
 		if err != nil {
 			return nil, "", status.Error(codes.Internal, "Failed to scan Notes row")
 		}
 		var n pb.Note
-		proto.UnmarshalText(data, &n)
+		unm := jsonpb.Unmarshaler{}
+		reader := strings.NewReader(data)
+		unm.Unmarshal(reader, &n)
+		// proto.UnmarshalText(data, &n)
 		if err != nil {
 			return nil, "", status.Error(codes.Internal, "Failed to unmarshal Note from database")
 		}
 		ns = append(ns, &n)
 	}
-	if count == lastId {
+	if count == lastID {
 		return ns, "", nil
 	}
-	encryptedPage, err := encryptInt64(lastId, pg.paginationKey)
+	encryptedPage, err := encryptInt64(lastID, pg.paginationKey)
 	if err != nil {
 		return nil, "", status.Error(codes.Internal, "Failed to paginate projects")
 	}
