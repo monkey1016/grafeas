@@ -267,7 +267,15 @@ message Resource {
   // The hash of the resource content. For example, the Docker digest.
   grafeas.v1beta1.provenance.Hash content_hash = 3 [deprecated = true];
 
-  // next_id = 4;
+  // Option mapping of details for the resource, allowing better filtering.
+  // Such as "operator_name" or "operator_version", or any arbitrary key-value pairs
+  ResourceDetails resource_details = 4;
+
+  // next_id = 5;
+}
+
+message ResourceDetails {
+  map<string, string> details = 1;
 }
 
 // A type of analysis that can be done for a resource.

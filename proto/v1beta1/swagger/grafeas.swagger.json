@@ -2000,9 +2000,24 @@
         "content_hash": {
           "$ref": "#/definitions/provenanceHash",
           "description": "Deprecated, do not use. Use uri instead.\n\nThe hash of the resource content. For example, the Docker digest."
+        },
+        "details": {
+          "$ref": "#/definitions/v1beta1ResourceDetails",
+          "title": "Option mapping of details for the resource, allowing better filtering.\nSuch as \"operator_name\" or \"operator_version\", or any arbitrary key-value pairs"
         }
       },
       "description": "An entity that can have metadata. For example, a Docker image."
+    },
+    "v1beta1ResourceDetails": {
+      "type": "object",
+      "properties": {
+        "details": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
     },
     "v1beta1VulnerabilityOccurrencesSummary": {
       "type": "object",
