@@ -1567,10 +1567,10 @@
     "resource_detailsOperatorIdentifier": {
       "type": "object",
       "properties": {
-        "operator_name": {
+        "name": {
           "type": "string"
         },
-        "operator_version": {
+        "version": {
           "type": "string"
         }
       }
