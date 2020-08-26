@@ -90,6 +90,13 @@
 //go:generate swagger vulnerability.proto
 //go:generate mv vulnerability.swagger.json swagger
 
+//go:generate protoc resource_details.proto
+//go:generate rm -rf resource_details_go_proto
+//go:generate mkdir resource_details_go_proto
+//go:generate mv resource_details.pb.go resource_details_go_proto
+//go:generate swagger resource_details.proto
+//go:generate mv resource_details.swagger.json swagger
+
 //go:generate protoc intoto.proto
 //go:generate rm -rf intoto_go_proto
 //go:generate mkdir intoto_go_proto

@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package grafeas.v1beta1.resource_details;
+
+option go_package = "github.com/grafeas/grafeas/proto/v1beta1/resource_details_go_proto";
+option java_multiple_files = true;
+option java_package = "io.grafeas.v1beta1.resource_details";
+option objc_class_prefix = "GRA";
+
+message GenericDetails {
+  map<string, string> details = 1;
+}
+
+message OperatorDetails {
+  repeated OperatorIdentifier operators = 1;
+}
+
+message OperatorIdentifier {
+  string operator_name = 1;
+  string operator_version = 2;
+}

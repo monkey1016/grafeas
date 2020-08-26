@@ -38,6 +38,7 @@ import "proto/v1beta1/intoto.proto";
 import "proto/v1beta1/package.proto";
 import "proto/v1beta1/provenance.proto";
 import "proto/v1beta1/vulnerability.proto";
+import "proto/v1beta1/resource_details.proto";
 
 // [Grafeas](grafeas.io) API.
 //
@@ -269,13 +270,13 @@ message Resource {
 
   // Option mapping of details for the resource, allowing better filtering.
   // Such as "operator_name" or "operator_version", or any arbitrary key-value pairs
-  ResourceDetails resource_details = 4;
+  oneof details {
+    grafeas.v1beta1.resource_details.GenericDetails generic_details = 4;
+    grafeas.v1beta1.resource_details.OperatorDetails operator_details = 5;
+  }
+  
 
-  // next_id = 5;
-}
-
-message ResourceDetails {
-  map<string, string> details = 1;
+  // next_id = 6;
 }
 
 // A type of analysis that can be done for a resource.

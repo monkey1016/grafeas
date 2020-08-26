@@ -1542,6 +1542,39 @@
       },
       "description": "Source describes the location of the source used for the build."
     },
+    "resource_detailsGenericDetails": {
+      "type": "object",
+      "properties": {
+        "details": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "resource_detailsOperatorDetails": {
+      "type": "object",
+      "properties": {
+        "operators": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/resource_detailsOperatorIdentifier"
+          }
+        }
+      }
+    },
+    "resource_detailsOperatorIdentifier": {
+      "type": "object",
+      "properties": {
+        "operator_name": {
+          "type": "string"
+        },
+        "operator_version": {
+          "type": "string"
+        }
+      }
+    },
     "rpcStatus": {
       "type": "object",
       "properties": {
@@ -2001,23 +2034,14 @@
           "$ref": "#/definitions/provenanceHash",
           "description": "Deprecated, do not use. Use uri instead.\n\nThe hash of the resource content. For example, the Docker digest."
         },
-        "details": {
-          "$ref": "#/definitions/v1beta1ResourceDetails",
-          "title": "Option mapping of details for the resource, allowing better filtering.\nSuch as \"operator_name\" or \"operator_version\", or any arbitrary key-value pairs"
+        "generic_details": {
+          "$ref": "#/definitions/resource_detailsGenericDetails"
+        },
+        "operator_details": {
+          "$ref": "#/definitions/resource_detailsOperatorDetails"
         }
       },
       "description": "An entity that can have metadata. For example, a Docker image."
-    },
-    "v1beta1ResourceDetails": {
-      "type": "object",
-      "properties": {
-        "details": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          }
-        }
-      }
     },
     "v1beta1VulnerabilityOccurrencesSummary": {
       "type": "object",
