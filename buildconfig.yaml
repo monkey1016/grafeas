@@ -1,0 +1,27 @@
+kind: ImageStream
+apiVersion: image.openshift.io/v1
+metadata:
+  name: grafeas
+spec:
+  lookupPolicy:
+    local: false
+---
+
+kind: BuildConfig
+apiVersion: build.openshift.io/v1
+metadata:
+  name: grafeas
+spec:
+  source:
+    type: git
+    git:
+      uri: https://github.com/monkey1016/grafeas.git
+      ref: buildconfig
+  strategy:
+    type: Docker
+    dockerStrategy:
+      dockerfilePath: Dockerfile
+  output:
+    to:
+      kind: ImageStreamTag
+      name: grafeas:latest
