@@ -97,6 +97,13 @@
 //go:generate swagger resource_details.proto
 //go:generate mv resource_details.swagger.json swagger
 
+//go:generate protoc software.proto
+//go:generate rm -rf software_go_proto
+//go:generate mkdir software_go_proto
+//go:generate mv software.pb.go software_go_proto
+//go:generate swagger software.proto
+//go:generate mv software.swagger.json swagger
+
 //go:generate protoc intoto.proto
 //go:generate rm -rf intoto_go_proto
 //go:generate mkdir intoto_go_proto

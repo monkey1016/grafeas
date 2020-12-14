@@ -21,6 +21,8 @@ option java_multiple_files = true;
 option java_package = "io.grafeas.v1beta1";
 option objc_class_prefix = "GRA";
 
+import "proto/v1beta1/provenance.proto";
+
 // Kind represents the kinds of notes supported.
 enum NoteKind {
   // Default value. This value is unused.
@@ -41,6 +43,8 @@ enum NoteKind {
   ATTESTATION = 7;
   // This represents an in-toto link.
   INTOTO = 8;
+  // This represents a generic software group
+  SOFTWARE = 9;
 }
 
 // Metadata for any related URL information.
@@ -102,3 +106,22 @@ message Signature {
   string public_key_id = 2;
 }
 
+// An entity that can have metadata. For example, a Docker image.
+message Resource {
+  // Deprecated, do not use. Use uri instead.
+  //
+  // The name of the resource. For example, the name of a Docker image -
+  // "Debian".
+  string name = 1 [deprecated = true];
+
+  // Required. The unique URI of the resource. For example,
+  // `https://gcr.io/project/image@sha256:foo` for a Docker image.
+  string uri = 2;
+
+  // Deprecated, do not use. Use uri instead.
+  //
+  // The hash of the resource content. For example, the Docker digest.
+  grafeas.v1beta1.provenance.Hash content_hash = 3 [deprecated = true];
+
+  // next_id = 6;
+}

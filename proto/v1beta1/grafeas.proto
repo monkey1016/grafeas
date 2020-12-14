@@ -36,9 +36,10 @@ import "proto/v1beta1/discovery.proto";
 import "proto/v1beta1/image.proto";
 import "proto/v1beta1/intoto.proto";
 import "proto/v1beta1/package.proto";
-import "proto/v1beta1/provenance.proto";
+// import "proto/v1beta1/provenance.proto";
+// import "proto/v1beta1/resource_details.proto";
+import "proto/v1beta1/software.proto";
 import "proto/v1beta1/vulnerability.proto";
-import "proto/v1beta1/resource_details.proto";
 
 // [Grafeas](grafeas.io) API.
 //
@@ -206,7 +207,7 @@ message Occurrence {
   string name = 1;
 
   // Required. Immutable. The resource for which the occurrence applies.
-  Resource resource = 2;
+  grafeas.v1beta1.Resource resource = 2;
 
   // Required. Immutable. The analysis note associated with this occurrence, in
   // the form of `projects/[PROVIDER_ID]/notes/[NOTE_ID]`. This field can be
@@ -246,37 +247,11 @@ message Occurrence {
     grafeas.v1beta1.attestation.Details attestation = 14;
     // Describes a specific in-toto link.
     grafeas.v1beta1.intoto.Details intoto = 15;
+    // Describes a specific software group.
+    grafeas.v1beta1.software.Details software = 16;
   }
 
-  // next_id = 16;
-}
-
-// An entity that can have metadata. For example, a Docker image.
-message Resource {
-  // Deprecated, do not use. Use uri instead.
-  //
-  // The name of the resource. For example, the name of a Docker image -
-  // "Debian".
-  string name = 1 [deprecated = true];
-
-  // Required. The unique URI of the resource. For example,
-  // `https://gcr.io/project/image@sha256:foo` for a Docker image.
-  string uri = 2;
-
-  // Deprecated, do not use. Use uri instead.
-  //
-  // The hash of the resource content. For example, the Docker digest.
-  grafeas.v1beta1.provenance.Hash content_hash = 3 [deprecated = true];
-
-  // Option mapping of details for the resource, allowing better filtering.
-  // Such as "operator_name" or "operator_version", or any arbitrary key-value pairs
-  oneof details {
-    grafeas.v1beta1.resource_details.GenericDetails generic_details = 4;
-    grafeas.v1beta1.resource_details.OperatorDetails operator_details = 5;
-  }
-  
-
-  // next_id = 6;
+  // next_id = 17;
 }
 
 // A type of analysis that can be done for a resource.
@@ -335,9 +310,11 @@ message Note {
     grafeas.v1beta1.attestation.Authority attestation_authority = 16;
     // A note describing an in-toto link.
     grafeas.v1beta1.intoto.InToto intoto = 17;
+    // A note describing a software group
+    grafeas.v1beta1.software.Software software = 18;
   }
 
-  // next_id = 18;
+  // next_id = 19;
 }
 
 // Request to get an occurrence.
@@ -589,7 +566,7 @@ message VulnerabilityOccurrencesSummary {
   // Per resource and severity counts of fixable and total vulnerabilities.
   message FixableTotalByDigest {
     // The affected resource.
-    Resource resource = 1;
+    grafeas.v1beta1.Resource resource = 1;
     // The severity for this count. SEVERITY_UNSPECIFIED indicates total across
     // all severities.
     grafeas.v1beta1.vulnerability.Severity severity = 2;

@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package grafeas.v1beta1.software;
+
+option go_package = "github.com/grafeas/grafeas/proto/v1beta1/software_go_proto";
+option java_multiple_files = true;
+option java_package = "io.grafeas.v1beta1.software";
+option objc_class_prefix = "GRA";
+
+import "proto/v1beta1/common.proto";
+
+// A note that indicates a type of software group. This note
+// exists in a provider's project. A `Software` occurrence is created in a
+// consumer's project and contains a list of resources that makeup the software group.
+message Software {
+  enum Kind {
+    // Unknown
+    KIND_UNSPECIFIED = 0;
+    // OpenShift or Kubernetes Operator
+    OPERATOR = 1;
+  }
+  // The software bundle Kind
+  Kind kind = 1;
+
+  // A name to describe the software bundle Kind
+  // string name = 2;
+}
+
+message Details {
+  repeated grafeas.v1beta1.Resource resources = 1;
+}
+
+message GenericDetails {
+  map<string, string> details = 1;
+}
+
+message OperatorDetails {
+  repeated OperatorIdentifier operators = 1;
+}
+
+message OperatorIdentifier {
+  string name = 1;
+  string version = 2;
+}

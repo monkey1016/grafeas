@@ -18,8 +18,6 @@ server.csr
 server.key
 server.p12
 server.pem
-<<<<<<< HEAD
 .vscode/
-=======
 test/utilities
->>>>>>> 02ff0a25a1ca1dd4c27046a9edf8d08f82ce6999
+.devcontainer/

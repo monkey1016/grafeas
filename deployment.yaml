@@ -1,0 +1,99 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafeas
+  labels:
+    app: grafeas
+spec:
+  selector:
+    matchLabels:
+      app: grafeas
+  template:
+    metadata:
+      labels:
+        app: grafeas
+    spec:
+      containers:
+        - name: grafeas
+          image: quay.io/kjanania/grafeas:resource-details
+          limits:
+            memory: 512Mi
+            cpu: 500m
+          ports:
+            - containerPort: 8080
+          args: [ '--config', '/config/config.yaml' ]
+          volumeMounts:
+            - name: grafeas-config
+              mountPath: /config
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - /bin/sh
+                  - -c
+                  - "wget --post-data '{ \"name\": \"projects/provider_container\" }' http://localhost:8080/v1beta1/projects -O -"
+        - name: postgresql
+          image: docker.io/library/postgres
+          resources:
+            limits:
+              memory: 512Mi
+              cpu: 500m
+          env:
+            - name: POSTGRES_HOST_AUTH_METHOD
+              value: trust
+      volumes:
+        - configMap:
+            name: grafeas
+          name: grafeas-config
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafeas
+  labels:
+    app: grafeas
+spec:
+  selector:
+    app: grafeas
+  ports:
+    - port: 8080
+      targetPort: 8080
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafeas
+  labels:
+    app: grafeas
+data:
+  config.yaml: |
+    grafeas:
+      # Grafeas api server config
+      api:
+        # Endpoint address
+        address: "0.0.0.0:8080"
+      # Supported storage types are "memstore" and "postgres"
+      storage_type: "postgres"
+      # Postgres options
+      # Note: due to storage_type being set to memstore, the below config is a
+      # no-op and only preserved here as an example.
+      postgres:
+        # Database host
+        host: "127.0.0.1:5432"
+        # Dabase name
+        dbname: "postgres"
+        # Database username
+        user: "postgres"
+        # Database password
+        password: "password"
+        # Valid sslmodes disable, allow, prefer, require, verify-ca, verify-full.
+        # See https://www.postgresql.org/docs/current/static/libpq-connect.html for details
+        sslmode: "disable"
+        # 32-bit URL-safe base64 key used to encrypt pagination tokens
+        # If one is not provided, it will be generated.
+        # Multiple grafeas instances in the same cluster need the same value.
+        paginationkey:

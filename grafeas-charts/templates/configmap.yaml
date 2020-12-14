@@ -18,6 +18,28 @@ data:
         cors_allowed_origins:
         # - "http://example.net"
       storage_type: {{ .Values.persistence.storageType }}
+{{- if eq .Values.persistence.storageType "postgres" }}
+      # Postgres options
+      # Note: due to storage_type being set to memstore, the below config is a
+      # no-op and only preserved here as an example.
+      postgres:
+        # Database host
+        host: "127.0.0.1:5432"
+        # Dabase name
+        dbname: "postgres"
+        # Database username
+        user: "postgres"
+        # Database password
+        password: "password"
+        # Valid sslmodes disable, allow, prefer, require, verify-ca, verify-full.
+        # See https://www.postgresql.org/docs/current/static/libpq-connect.html for details
+        sslmode: "disable"
+        # 32-bit URL-safe base64 key used to encrypt pagination tokens
+        # If one is not provided, it will be generated.
+        # Multiple grafeas instances in the same cluster need the same value.
+        paginationkey:
+{{- else }}
+{{- end }}
       embedded:
         # Path to embedded database
         path: "/data/grafeas.db"

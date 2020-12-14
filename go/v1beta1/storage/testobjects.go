@@ -29,7 +29,7 @@ const (
 
 func TestOccurrence(pID, noteName string) *pb.Occurrence {
 	return &pb.Occurrence{
-		Resource: &pb.Resource{Uri: "gcr.io/foo/bar"},
+		Resource: &cpb.Resource{Uri: "gcr.io/foo/bar"},
 		NoteName: noteName,
 		Kind:     cpb.NoteKind_VULNERABILITY,
 		Details: &pb.Occurrence_Vulnerability{

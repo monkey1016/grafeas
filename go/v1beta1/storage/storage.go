@@ -1012,7 +1012,7 @@ func DoTestStorage(t *testing.T, createStore func(t *testing.T) (grafeas.Storage
 func createTestOccurrence(pID, noteName string) *pb.Occurrence {
 	return &pb.Occurrence{
 		Name:     fmt.Sprintf("projects/%s/occurrences/134", pID),
-		Resource: &pb.Resource{Uri: "gcr.io/foo/bar"},
+		Resource: &cpb.Resource{Uri: "gcr.io/foo/bar"},
 		NoteName: noteName,
 		Kind:     cpb.NoteKind_VULNERABILITY,
 		Details: &pb.Occurrence_Vulnerability{

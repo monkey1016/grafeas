@@ -25,8 +25,9 @@ import (
 	"github.com/grafeas/grafeas/go/v1beta1/api/validators/deployment"
 	"github.com/grafeas/grafeas/go/v1beta1/api/validators/discovery"
 	"github.com/grafeas/grafeas/go/v1beta1/api/validators/image"
-	"github.com/grafeas/grafeas/go/v1beta1/api/validators/package"
+	pkg "github.com/grafeas/grafeas/go/v1beta1/api/validators/package"
 	"github.com/grafeas/grafeas/go/v1beta1/api/validators/vulnerability"
+	cpb "github.com/grafeas/grafeas/proto/v1beta1/common_go_proto"
 	gpb "github.com/grafeas/grafeas/proto/v1beta1/grafeas_go_proto"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -158,7 +159,7 @@ func ValidateOccurrence(o *gpb.Occurrence) error {
 	return nil
 }
 
-func validateResource(r *gpb.Resource) []error {
+func validateResource(r *cpb.Resource) []error {
 	errs := []error{}
 
 	if r.GetUri() == "" {

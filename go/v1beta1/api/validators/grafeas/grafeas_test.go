@@ -19,6 +19,7 @@ import (
 
 	apb "github.com/grafeas/grafeas/proto/v1beta1/attestation_go_proto"
 	bpb "github.com/grafeas/grafeas/proto/v1beta1/build_go_proto"
+	cpb "github.com/grafeas/grafeas/proto/v1beta1/common_go_proto"
 	deploymentpb "github.com/grafeas/grafeas/proto/v1beta1/deployment_go_proto"
 	discoverypb "github.com/grafeas/grafeas/proto/v1beta1/discovery_go_proto"
 	gpb "github.com/grafeas/grafeas/proto/v1beta1/grafeas_go_proto"
@@ -151,14 +152,14 @@ func TestValidateOccurrence(t *testing.T) {
 		{
 			desc: "invalid resource, want error",
 			o: &gpb.Occurrence{
-				Resource: &gpb.Resource{},
+				Resource: &cpb.Resource{},
 			},
 			wantErr: true,
 		},
 		{
 			desc: "missing note name, want error",
 			o: &gpb.Occurrence{
-				Resource: &gpb.Resource{
+				Resource: &cpb.Resource{
 					Uri: "goog://foo/bar",
 				},
 			},
@@ -167,7 +168,7 @@ func TestValidateOccurrence(t *testing.T) {
 		{
 			desc: "missing details, want error",
 			o: &gpb.Occurrence{
-				Resource: &gpb.Resource{
+				Resource: &cpb.Resource{
 					Uri: "goog://foo/bar",
 				},
 				NoteName: "projects/goog-vulnz/notes/CVE-UH-OH",
@@ -240,7 +241,7 @@ func TestValidateOccurrence(t *testing.T) {
 		{
 			desc: "valid occurrence, want success",
 			o: &gpb.Occurrence{
-				Resource: &gpb.Resource{
+				Resource: &cpb.Resource{
 					Uri: "goog://foo/bar",
 				},
 				NoteName: "projects/goog-vulnz/notes/CVE-UH-OH",
@@ -265,17 +266,17 @@ func TestValidateOccurrence(t *testing.T) {
 func TestValidateResource(t *testing.T) {
 	tests := []struct {
 		desc     string
-		r        *gpb.Resource
+		r        *cpb.Resource
 		wantErrs bool
 	}{
 		{
 			desc:     "missing URI, want error(s)",
-			r:        &gpb.Resource{},
+			r:        &cpb.Resource{},
 			wantErrs: true,
 		},
 		{
 			desc: "valid resource, want success",
-			r: &gpb.Resource{
+			r: &cpb.Resource{
 				Uri: "goog://foo/bar",
 			},
 			wantErrs: false,
