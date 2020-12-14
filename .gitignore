@@ -10,7 +10,6 @@ proto/v1/*_go_proto/
 proto/v1alpha1/*.pb.go
 proto/v1alpha1/*.pb.gw.go
 cel/syntax.proto
-cel/syntax.pb.go
 protodeps/*
 ca.crt
 ca.key
@@ -19,4 +18,8 @@ server.csr
 server.key
 server.p12
 server.pem
+<<<<<<< HEAD
 .vscode/
+=======
+test/utilities
+>>>>>>> 02ff0a25a1ca1dd4c27046a9edf8d08f82ce6999

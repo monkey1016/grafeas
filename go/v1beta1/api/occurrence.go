@@ -262,7 +262,7 @@ func (g *API) DeleteOccurrence(ctx context.Context, req *gpb.DeleteOccurrenceReq
 		g.Logger.Warningf(ctx, "Error deleting policies for occurrence %q in project %q: %v", oID, pID, err)
 	}
 
-	return nil, nil
+	return &emptypb.Empty{}, nil
 }
 
 // ListNoteOccurrences lists occurrences for the specified note.
@@ -278,11 +278,16 @@ func (g *API) ListNoteOccurrences(ctx context.Context, req *gpb.ListNoteOccurren
 		return nil, err
 	}
 
+	ps, err := validatePageSize(req.PageSize)
+	if err != nil {
+		return nil, err
+	}
+
 	if err := g.Filter.Validate(req.Filter); err != nil {
 		return nil, err
 	}
 
-	occs, npt, err := g.Storage.ListNoteOccurrences(ctx, pID, nID, req.Filter, req.PageToken, req.PageSize)
+	occs, npt, err := g.Storage.ListNoteOccurrences(ctx, pID, nID, req.Filter, req.PageToken, ps)
 	if err != nil {
 		return nil, err
 	}
