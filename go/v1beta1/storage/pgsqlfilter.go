@@ -72,13 +72,13 @@ func (fs *PgSQLFilterSql) sqlFromCall(func_name string, args []*syntax.Expr) str
 	}
 }
 
-func (fs *PgSQLFilterSql) sqlFromSelect(select_node syntax.Expr_Select) string {
+func (fs *PgSQLFilterSql) sqlFromSelect(select_node *syntax.Expr_Select) string {
 	operand := fs.makeSql(select_node.GetOperand())
 	field := select_node.GetField()
 	return fmt.Sprintf("%s.%s", operand, field)
 }
 
-func (fs *PgSQLFilterSql) getConstantValue(const_expr syntax.Constant) string {
+func (fs *PgSQLFilterSql) getConstantValue(const_expr *syntax.Constant) string {
 
 	switch const_expr.GetConstantKind().(type) {
 	case *syntax.Constant_Int64Value:
@@ -102,7 +102,7 @@ func (fs *PgSQLFilterSql) makeSql(node *syntax.Expr) string {
 	case *syntax.Expr_SelectExpr:
 		select_node := *node.GetSelectExpr()
 		fs.selects++
-		ret_str := fs.sqlFromSelect(select_node)
+		ret_str := fs.sqlFromSelect(&select_node)
 		fs.selects--
 		if fs.selects == 0 {
 			return "data @@ '$." + ret_str
@@ -120,7 +120,7 @@ func (fs *PgSQLFilterSql) makeSql(node *syntax.Expr) string {
 		}
 	case *syntax.Expr_ConstExpr:
 		c_expr := *node.GetConstExpr()
-		return fs.getConstantValue(c_expr)
+		return fs.getConstantValue(&c_expr)
 	}
 
 	return "NO SQL"

@@ -262,14 +262,10 @@ func (pg *PgSQLStore) UpdateOccurrence(ctx context.Context, pID, oID string, o *
 	// TODO(#312): implement the update operation
 	o.UpdateTime = ptypes.TimestampNow()
 
-<<<<<<< HEAD
 	m := jsonpb.Marshaler{}
 	dataAsJSON, _ := m.MarshalToString(o)
 
-	result, err := pg.DB.Exec(updateOccurrence, dataAsJSON, pID, oID)
-=======
-	result, err := pg.DB.ExecContext(ctx, updateOccurrence, proto.MarshalTextString(o), pID, oID)
->>>>>>> master
+	result, err := pg.DB.ExecContext(ctx, updateOccurrence, dataAsJSON, pID, oID)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "Failed to update Occurrence")
 	}
@@ -308,26 +304,21 @@ func (pg *PgSQLStore) GetOccurrence(ctx context.Context, pID, oID string) (*pb.O
 // ListOccurrences returns up to pageSize number of occurrences for this project beginning
 // at pageToken, or from start if pageToken is the empty string.
 func (pg *PgSQLStore) ListOccurrences(ctx context.Context, pID, filter, pageToken string, pageSize int32) ([]*pb.Occurrence, string, error) {
-<<<<<<< HEAD
 	var rows *sql.Rows
 	id := decryptInt64(pageToken, pg.paginationKey, 0)
-	var filter_query, query string
+	var filterQuery, query string
 	if filter != "" {
 		var fs PgSQLFilterSql
-		filter_query = "AND " + fs.ParseFilter(filter)
+		filterQuery = "AND " + fs.ParseFilter(filter)
 	} else {
-		filter_query = ""
+		filterQuery = ""
 	}
-	query = fmt.Sprintf(listOccurrences, filter_query)
-	rows, err := pg.DB.Query(query, pID, id, pageSize)
-=======
-	count, err := pg.count(ctx, occurrenceCount, pID)
->>>>>>> master
-	if err != nil {
+	query = fmt.Sprintf(listOccurrences, filterQuery)
+	count, countErr := pg.count(ctx, occurrenceCount, pID)
+	if countErr != nil {
 		return nil, "", status.Error(codes.Internal, "Failed to count Occurrences from database")
 	}
-	id := decryptInt64(pageToken, pg.paginationKey, 0)
-	rows, err := pg.DB.QueryContext(ctx, listOccurrences, pID, id, pageSize)
+	rows, err := pg.DB.QueryContext(ctx, query, pID, id, pageSize)
 	if err != nil {
 		return nil, "", status.Error(codes.Internal, "Failed to list Occurrences from database")
 	}
@@ -367,14 +358,10 @@ func (pg *PgSQLStore) CreateNote(ctx context.Context, pID, nID, uID string, n *p
 	n.Name = nName
 	n.CreateTime = ptypes.TimestampNow()
 
-<<<<<<< HEAD
 	var dataAsJSON string
 	m := jsonpb.Marshaler{}
 	dataAsJSON, _ = m.MarshalToString(n)
-	_, err := pg.DB.Exec(insertNote, pID, nID, dataAsJSON)
-=======
-	_, err := pg.DB.ExecContext(ctx, insertNote, pID, nID, proto.MarshalTextString(n))
->>>>>>> master
+	_, err := pg.DB.ExecContext(ctx, insertNote, pID, nID, dataAsJSON)
 	if err, ok := err.(*pq.Error); ok {
 		// Check for unique_violation
 		if err.Code == "23505" {
@@ -435,14 +422,10 @@ func (pg *PgSQLStore) UpdateNote(ctx context.Context, pID, nID string, n *pb.Not
 	// TODO(#312): implement the update operation
 	n.UpdateTime = ptypes.TimestampNow()
 
-<<<<<<< HEAD
 	m := jsonpb.Marshaler{}
 	dataAsJSON, _ := m.MarshalToString(n)
 
-	result, err := pg.DB.Exec(updateNote, dataAsJSON, pID, nID)
-=======
-	result, err := pg.DB.ExecContext(ctx, updateNote, proto.MarshalTextString(n), pID, nID)
->>>>>>> master
+	result, err := pg.DB.ExecContext(ctx, updateNote, dataAsJSON, pID, nID)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "Failed to update Note")
 	}
@@ -501,26 +484,21 @@ func (pg *PgSQLStore) GetOccurrenceNote(ctx context.Context, pID, oID string) (*
 // ListNotes returns up to pageSize number of notes for this project (pID) beginning
 // at pageToken (or from start if pageToken is the empty string).
 func (pg *PgSQLStore) ListNotes(ctx context.Context, pID, filter, pageToken string, pageSize int32) ([]*pb.Note, string, error) {
-<<<<<<< HEAD
 	var rows *sql.Rows
 	id := decryptInt64(pageToken, pg.paginationKey, 0)
-	var filter_query, query string
+	var filterQuery, query string
 	if filter != "" {
 		var fs PgSQLFilterSql
-		filter_query = "AND " + fs.ParseFilter(filter)
+		filterQuery = "AND " + fs.ParseFilter(filter)
 	} else {
-		filter_query = ""
+		filterQuery = ""
 	}
-	query = fmt.Sprintf(listNotes, filter_query)
-	rows, err := pg.DB.Query(query, pID, id, pageSize)
-=======
-	count, err := pg.count(ctx, noteCount, pID)
->>>>>>> master
-	if err != nil {
+	query = fmt.Sprintf(listNotes, filterQuery)
+	count, countErr := pg.count(ctx, noteCount, pID)
+	if countErr != nil {
 		return nil, "", status.Error(codes.Internal, "Failed to count Notes from database")
 	}
-	id := decryptInt64(pageToken, pg.paginationKey, 0)
-	rows, err := pg.DB.QueryContext(ctx, listNotes, pID, id, pageSize)
+	rows, err := pg.DB.QueryContext(ctx, query, pID, id, pageSize)
 	if err != nil {
 		return nil, "", status.Error(codes.Internal, "Failed to list Notes from database")
 	}
@@ -561,27 +539,22 @@ func (pg *PgSQLStore) ListNoteOccurrences(ctx context.Context, pID, nID, filter,
 	if _, err := pg.GetNote(ctx, pID, nID); err != nil {
 		return nil, "", err
 	}
-<<<<<<< HEAD
 	var rows *sql.Rows
 	id := decryptInt64(pageToken, pg.paginationKey, 0)
-	var filter_query, query string
+	var filterQuery, query string
 	if filter != "" {
 		var fs PgSQLFilterSql
-		filter_query = "AND " + fs.ParseFilter(filter)
+		filterQuery = "AND " + fs.ParseFilter(filter)
 	} else {
-		filter_query = ""
+		filterQuery = ""
 	}
-	strings.Replace(filter_query, "data", "o.data", -1)
-	query = fmt.Sprintf(listNoteOccurrences, filter_query)
-	rows, err := pg.DB.Query(query, pID, nID, id, pageSize)
-=======
-	count, err := pg.count(ctx, noteOccurrencesCount, pID, nID)
->>>>>>> master
-	if err != nil {
+	strings.Replace(filterQuery, "data", "o.data", -1)
+	query = fmt.Sprintf(listNoteOccurrences, filterQuery)
+	count, countErr := pg.count(ctx, noteOccurrencesCount, pID, nID)
+	if countErr != nil {
 		return nil, "", status.Error(codes.Internal, "Failed to count Occurrences from database")
 	}
-	id := decryptInt64(pageToken, pg.paginationKey, 0)
-	rows, err := pg.DB.QueryContext(ctx, listNoteOccurrences, pID, nID, id, pageSize)
+	rows, err := pg.DB.QueryContext(ctx, query, pID, nID, id, pageSize)
 	if err != nil {
 		return nil, "", status.Error(codes.Internal, "Failed to list Occurrences from database")
 	}
